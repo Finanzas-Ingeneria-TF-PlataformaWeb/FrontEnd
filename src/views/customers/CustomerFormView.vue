@@ -1,18 +1,34 @@
 <template>
-  <div>
-    <h2 class="mb-3">
-      {{ isEdit ? 'Editar cliente' : 'Nuevo cliente' }}
-    </h2>
+  <div class="customer-form-page">
+    <!-- Header -->
+    <div class="form-header">
+      <div>
+        <h2 class="form-title">
+          {{ isEdit ? 'Editar cliente' : 'Nuevo cliente' }}
+        </h2>
+        <p class="form-subtitle">
+          Registra la información del solicitante para evaluar su perfil crediticio.
+        </p>
+      </div>
 
-    <div class="grid">
+      <div class="form-badge" v-if="isEdit">
+        <span class="badge-dot"></span>
+        Modo edición
+      </div>
+    </div>
+
+    <!-- Grid principal -->
+    <div class="grid form-grid">
       <!-- Columna izquierda -->
       <div class="col-12 lg:col-6 flex flex-column gap-4">
-        <section>
-          <h3 class="mb-2">Datos personales</h3>
-          <div class="flex flex-column gap-3">
+        <section class="form-section">
+          <h3 class="section-title">Datos personales</h3>
+          <div class="section-body flex flex-column gap-3">
             <div class="flex gap-2">
               <div class="flex flex-column gap-2 w-6">
-                <label for="documentType">Tipo de documento</label>
+                <label for="documentType" class="field-label required">
+                  Tipo de documento
+                </label>
                 <Dropdown
                     id="documentType"
                     v-model="form.documentType"
@@ -20,32 +36,50 @@
                     option-label="label"
                     option-value="value"
                     placeholder="Selecciona tipo"
+                    class="w-full"
                 />
               </div>
               <div class="flex flex-column gap-2 w-6">
-                <label for="documentNumber">Número de documento</label>
-                <InputText id="documentNumber" v-model="form.documentNumber" />
+                <label for="documentNumber" class="field-label required">
+                  Número de documento
+                </label>
+                <InputText
+                    id="documentNumber"
+                    v-model="form.documentNumber"
+                    placeholder="Ej: 12345678"
+                />
               </div>
             </div>
 
             <div class="flex flex-column gap-2">
-              <label for="fullName">Nombre completo</label>
-              <InputText id="fullName" v-model="form.fullName" />
+              <label for="fullName" class="field-label required">
+                Nombre completo
+              </label>
+              <InputText
+                  id="fullName"
+                  v-model="form.fullName"
+                  placeholder="Ej: Juan Pérez García"
+              />
             </div>
 
             <div class="flex gap-2">
               <div class="flex flex-column gap-2 w-6">
-                <label for="birthDate">Fecha de nacimiento</label>
+                <label for="birthDate" class="field-label">
+                  Fecha de nacimiento
+                </label>
                 <Calendar
                     id="birthDate"
                     v-model="form.birthDate"
                     date-format="dd/mm/yy"
                     show-icon
+                    class="w-full"
                 />
               </div>
 
               <div class="flex flex-column gap-2 w-6">
-                <label for="maritalStatus">Estado civil</label>
+                <label for="maritalStatus" class="field-label required">
+                  Estado civil
+                </label>
                 <Dropdown
                     id="maritalStatus"
                     v-model="form.maritalStatus"
@@ -53,40 +87,70 @@
                     option-label="label"
                     option-value="value"
                     placeholder="Selecciona estado"
+                    class="w-full"
                 />
               </div>
             </div>
 
             <div class="flex flex-column gap-2 w-4">
-              <label for="dependents">Dependientes</label>
+              <label for="dependents" class="field-label">
+                Dependientes
+              </label>
               <InputNumber
                   id="dependents"
                   v-model="form.dependents"
                   :min="0"
                   show-buttons
               />
+              <small class="field-help">
+                Número de personas que dependen económicamente del cliente.
+              </small>
             </div>
           </div>
         </section>
 
-        <section>
-          <h3 class="mb-2">Contacto</h3>
-          <div class="flex flex-column gap-3">
+        <section class="form-section">
+          <h3 class="section-title">Contacto</h3>
+          <div class="section-body flex flex-column gap-3">
             <div class="flex flex-column gap-2">
-              <label for="email">Correo electrónico</label>
-              <InputText id="email" v-model="form.email" />
+              <label for="email" class="field-label">
+                Correo electrónico
+              </label>
+              <InputText
+                  id="email"
+                  v-model="form.email"
+                  placeholder="Ej: cliente@correo.com"
+              />
             </div>
             <div class="flex flex-column gap-2">
-              <label for="phone">Teléfono</label>
-              <InputText id="phone" v-model="form.phone" />
+              <label for="phone" class="field-label">
+                Teléfono
+              </label>
+              <InputText
+                  id="phone"
+                  v-model="form.phone"
+                  placeholder="Ej: 999 999 999"
+              />
             </div>
             <div class="flex flex-column gap-2">
-              <label for="city">Ciudad</label>
-              <InputText id="city" v-model="form.city" />
+              <label for="city" class="field-label">
+                Ciudad
+              </label>
+              <InputText
+                  id="city"
+                  v-model="form.city"
+                  placeholder="Ej: Lima"
+              />
             </div>
             <div class="flex flex-column gap-2">
-              <label for="address">Dirección</label>
-              <InputText id="address" v-model="form.address" />
+              <label for="address" class="field-label">
+                Dirección
+              </label>
+              <InputText
+                  id="address"
+                  v-model="form.address"
+                  placeholder="Calle, número, urbanización, referencia"
+              />
             </div>
           </div>
         </section>
@@ -94,11 +158,13 @@
 
       <!-- Columna derecha -->
       <div class="col-12 lg:col-6 flex flex-column gap-4">
-        <section>
-          <h3 class="mb-2">Información laboral</h3>
-          <div class="flex flex-column gap-3">
+        <section class="form-section">
+          <h3 class="section-title">Información laboral</h3>
+          <div class="section-body flex flex-column gap-3">
             <div class="flex flex-column gap-2">
-              <label for="employmentType">Tipo de empleo</label>
+              <label for="employmentType" class="field-label">
+                Tipo de empleo
+              </label>
               <Dropdown
                   id="employmentType"
                   v-model="form.employmentType"
@@ -106,62 +172,101 @@
                   option-label="label"
                   option-value="value"
                   placeholder="Selecciona tipo"
+                  class="w-full"
               />
             </div>
             <div class="flex flex-column gap-2">
-              <label for="employerName">Empresa / negocio</label>
-              <InputText id="employerName" v-model="form.employerName" />
+              <label for="employerName" class="field-label">
+                Empresa / negocio
+              </label>
+              <InputText
+                  id="employerName"
+                  v-model="form.employerName"
+                  placeholder="Ej: Empresa ABC SAC"
+              />
             </div>
             <div class="flex flex-column gap-2">
-              <label for="jobPosition">Cargo</label>
-              <InputText id="jobPosition" v-model="form.jobPosition" />
+              <label for="jobPosition" class="field-label">
+                Cargo
+              </label>
+              <InputText
+                  id="jobPosition"
+                  v-model="form.jobPosition"
+                  placeholder="Ej: Analista, Jefe de ventas, Independiente"
+              />
             </div>
           </div>
         </section>
 
-        <section>
-          <h3 class="mb-2">Información económica</h3>
-          <div class="flex flex-column gap-3">
+        <section class="form-section">
+          <h3 class="section-title">Información económica</h3>
+          <div class="section-body flex flex-column gap-3">
             <div class="flex flex-column gap-2">
-              <label for="monthlyIncome">Ingreso mensual principal</label>
+              <label for="monthlyIncome" class="field-label required">
+                Ingreso mensual principal
+              </label>
               <InputNumber
                   id="monthlyIncome"
                   v-model="form.monthlyIncome"
                   mode="currency"
                   currency="PEN"
                   locale="es-PE"
+                  placeholder="Ej: 3,500.00"
               />
             </div>
 
             <div class="flex flex-column gap-2">
-              <label for="otherIncome">Otros ingresos mensuales</label>
+              <label for="otherIncome" class="field-label">
+                Otros ingresos mensuales
+              </label>
               <InputNumber
                   id="otherIncome"
                   v-model="form.otherIncome"
                   mode="currency"
                   currency="PEN"
                   locale="es-PE"
+                  placeholder="Ej: 500.00"
               />
+              <small class="field-help">
+                Incluye negocios propios, alquileres, comisiones, etc.
+              </small>
             </div>
 
             <div class="flex flex-column gap-2">
-              <label for="fixedExpenses">Gastos fijos mensuales</label>
+              <label for="fixedExpenses" class="field-label">
+                Gastos fijos mensuales
+              </label>
               <InputNumber
                   id="fixedExpenses"
                   v-model="form.fixedExpenses"
                   mode="currency"
                   currency="PEN"
                   locale="es-PE"
+                  placeholder="Ej: 1,800.00"
               />
+              <small class="field-help">
+                Suma de alquiler, servicios, otros créditos, pensiones, etc.
+              </small>
             </div>
           </div>
         </section>
       </div>
     </div>
 
-    <div class="mt-3 flex gap-2">
-      <Button label="Guardar" icon="pi pi-save" @click="onSave" />
-      <Button label="Cancelar" text @click="goBack" />
+    <!-- Acciones -->
+    <div class="form-actions mt-3">
+      <Button
+          label="Guardar cliente"
+          icon="pi pi-save"
+          class="p-button-success"
+          @click="onSave"
+      />
+      <Button
+          label="Cancelar"
+          text
+          class="p-button-text"
+          @click="goBack"
+      />
     </div>
   </div>
 </template>
@@ -252,14 +357,13 @@ function validateRequired() {
   return true
 }
 
-// Mapeo a lo que espera el backend
 function mapFormToPayload() {
   return {
     id: form.id ?? 0,
     documentType: form.documentType,
     documentNumber: form.documentNumber,
     fullName: form.fullName,
-    birthDate: form.birthDate,           // Date -> se serializa a ISO automático
+    birthDate: form.birthDate,
     maritalStatus: form.maritalStatus,
     dependents: form.dependents,
     email: form.email,
@@ -355,3 +459,126 @@ onMounted(() => {
 })
 </script>
 
+<style scoped>
+.customer-form-page {
+  animation: fadeIn 0.2s ease-out;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.form-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #064e3b;
+  margin-bottom: 0.25rem;
+}
+
+.form-subtitle {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.form-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #bbf7d0;
+}
+
+.badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #22c55e;
+}
+
+.form-grid {
+  row-gap: 1.25rem;
+}
+
+/* Secciones tipo card */
+.form-section {
+  background: #ffffff;
+  border-radius: 0.9rem;
+  padding: 1rem 1.1rem;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+  border: 1px solid #e5e7eb;
+}
+
+.section-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 0.75rem;
+}
+
+.field-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #4b5563;
+}
+
+.field-label.required::after {
+  content: ' *';
+  color: #dc2626;
+}
+
+.field-help {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+/* Inputs PrimeVue */
+:deep(.p-inputtext),
+:deep(.p-dropdown),
+:deep(.p-inputnumber-input),
+:deep(.p-calendar) {
+  width: 100%;
+  border-radius: 0.6rem;
+}
+
+/* Acciones */
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* Animación */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .form-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+</style>

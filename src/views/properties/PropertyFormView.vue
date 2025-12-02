@@ -1,27 +1,49 @@
 <template>
-  <div>
-    <h2 class="mb-3">
-      {{ isEdit ? 'Editar unidad inmobiliaria' : 'Nueva unidad inmobiliaria' }}
-    </h2>
+  <div class="property-form-page">
+    <!-- Header -->
+    <div class="form-header">
+      <div>
+        <h2 class="form-title">
+          {{ isEdit ? 'Editar unidad inmobiliaria' : 'Nueva unidad inmobiliaria' }}
+        </h2>
+        <p class="form-subtitle">
+          Completa la ficha de la unidad para que el simulador MiVivienda pueda evaluar el crédito.
+        </p>
+      </div>
 
-    <div class="grid">
+      <div class="form-badge" v-if="isEdit">
+        <span class="badge-dot"></span>
+        Modo edición
+      </div>
+    </div>
+
+    <!-- Grid principal -->
+    <div class="grid form-grid">
       <!-- Columna izquierda -->
       <div class="col-12 lg:col-6 flex flex-column gap-4">
-        <section>
-          <h3 class="mb-2">Proyecto y ubicación</h3>
-          <div class="flex flex-column gap-3">
+        <section class="form-section">
+          <h3 class="section-title">Proyecto y ubicación</h3>
+          <div class="section-body flex flex-column gap-3">
             <div class="flex flex-column gap-2">
-              <label for="projectName">Proyecto</label>
-              <InputText id="projectName" v-model="form.projectName" />
+              <label for="projectName" class="field-label required">Proyecto</label>
+              <InputText
+                  id="projectName"
+                  v-model="form.projectName"
+                  placeholder="Ej: Residencial Los Álamos"
+              />
             </div>
 
             <div class="flex gap-2">
               <div class="flex flex-column gap-2 w-6">
-                <label for="tower">Torre / bloque</label>
-                <InputText id="tower" v-model="form.tower" />
+                <label for="tower" class="field-label">Torre / bloque</label>
+                <InputText
+                    id="tower"
+                    v-model="form.tower"
+                    placeholder="Ej: Torre A"
+                />
               </div>
               <div class="flex flex-column gap-2 w-6">
-                <label for="floor">Piso</label>
+                <label for="floor" class="field-label">Piso</label>
                 <InputNumber
                     id="floor"
                     v-model="form.floor"
@@ -32,21 +54,24 @@
             </div>
 
             <div class="flex flex-column gap-2">
-              <label for="code">Código de unidad</label>
+              <label for="code" class="field-label required">Código de unidad</label>
               <InputText
                   id="code"
                   v-model="form.code"
-                  placeholder="Ej: D101, C-302, etc."
+                  placeholder="Ej: D101, C-302, OF-201"
               />
+              <small class="field-help">
+                Usa una nomenclatura consistente para facilitar la búsqueda en el inventario.
+              </small>
             </div>
           </div>
         </section>
 
-        <section>
-          <h3 class="mb-2">Características del inmueble</h3>
-          <div class="flex flex-column gap-3">
+        <section class="form-section">
+          <h3 class="section-title">Características del inmueble</h3>
+          <div class="section-body flex flex-column gap-3">
             <div class="flex flex-column gap-2">
-              <label for="propertyType">Tipo de unidad</label>
+              <label for="propertyType" class="field-label required">Tipo de unidad</label>
               <Dropdown
                   id="propertyType"
                   v-model="form.propertyType"
@@ -54,33 +79,36 @@
                   option-label="label"
                   option-value="value"
                   placeholder="Selecciona tipo"
+                  class="w-full"
               />
             </div>
 
             <div class="flex gap-2">
               <div class="flex flex-column gap-2 w-6">
-                <label for="area">Área techada (m²)</label>
+                <label for="area" class="field-label">Área techada (m²)</label>
                 <InputNumber
                     id="area"
                     v-model="form.area"
                     :minFractionDigits="0"
                     :maxFractionDigits="2"
+                    placeholder="Ej: 75"
                 />
               </div>
               <div class="flex flex-column gap-2 w-6">
-                <label for="areaTotal">Área total (m²)</label>
+                <label for="areaTotal" class="field-label">Área total (m²)</label>
                 <InputNumber
                     id="areaTotal"
                     v-model="form.areaTotal"
                     :minFractionDigits="0"
                     :maxFractionDigits="2"
+                    placeholder="Ej: 95"
                 />
               </div>
             </div>
 
             <div class="flex gap-2">
               <div class="flex flex-column gap-2 w-4">
-                <label for="bedrooms">Dormitorios</label>
+                <label for="bedrooms" class="field-label">Dormitorios</label>
                 <InputNumber
                     id="bedrooms"
                     v-model="form.bedrooms"
@@ -89,7 +117,7 @@
                 />
               </div>
               <div class="flex flex-column gap-2 w-4">
-                <label for="bathrooms">Baños</label>
+                <label for="bathrooms" class="field-label">Baños</label>
                 <InputNumber
                     id="bathrooms"
                     v-model="form.bathrooms"
@@ -98,7 +126,7 @@
                 />
               </div>
               <div class="flex flex-column gap-2 w-4">
-                <label for="parkings">Estacionamientos</label>
+                <label for="parkings" class="field-label">Estacionamientos</label>
                 <InputNumber
                     id="parkings"
                     v-model="form.parkings"
@@ -113,12 +141,12 @@
 
       <!-- Columna derecha -->
       <div class="col-12 lg:col-6 flex flex-column gap-4">
-        <section>
-          <h3 class="mb-2">Precio y financiamiento base</h3>
-          <div class="flex flex-column gap-3">
+        <section class="form-section">
+          <h3 class="section-title">Precio y financiamiento base</h3>
+          <div class="section-body flex flex-column gap-3">
             <div class="flex gap-2">
               <div class="flex flex-column gap-2 w-4">
-                <label for="currency">Moneda</label>
+                <label for="currency" class="field-label required">Moneda</label>
                 <Dropdown
                     id="currency"
                     v-model="form.currency"
@@ -126,22 +154,24 @@
                     option-label="label"
                     option-value="value"
                     placeholder="Selecciona moneda"
+                    class="w-full"
                 />
               </div>
               <div class="flex flex-column gap-2 w-8">
-                <label for="price">Precio de venta</label>
+                <label for="price" class="field-label required">Precio de venta</label>
                 <InputNumber
                     id="price"
                     v-model="form.price"
                     mode="currency"
                     :currency="form.currency || 'PEN'"
                     locale="es-PE"
+                    placeholder="Monto de venta"
                 />
               </div>
             </div>
 
             <div class="flex flex-column gap-2 w-6">
-              <label for="minDownPaymentPercent">
+              <label for="minDownPaymentPercent" class="field-label">
                 Cuota inicial mínima (%)
               </label>
               <InputNumber
@@ -151,37 +181,40 @@
                   :max="100"
                   suffix="%"
               />
+              <small class="field-help">
+                Este valor se usará como referencia en las simulaciones.
+              </small>
             </div>
 
             <div class="flex flex-column gap-2">
-              <label for="notes">Notas internas</label>
+              <label for="notes" class="field-label">Notas internas</label>
               <InputText
                   id="notes"
                   v-model="form.notes"
-                  placeholder="Información relevante para el asesor."
+                  placeholder="Información relevante para el asesor (vista, acabados, condiciones especiales)."
               />
             </div>
           </div>
         </section>
 
-        <section>
-          <h3 class="mb-2">Imágenes de la unidad</h3>
-          <div class="flex flex-column gap-3">
+        <section class="form-section">
+          <h3 class="section-title">Imágenes de la unidad</h3>
+          <div class="section-body flex flex-column gap-3">
             <div class="flex flex-column gap-2">
-              <label for="imageFile">Imagen principal</label>
+              <label for="imageFile" class="field-label">Imagen principal</label>
               <input
                   id="imageFile"
                   type="file"
                   accept="image/*"
+                  class="file-input"
                   @change="onImageSelected"
               />
-              <small class="text-sm">
-                La imagen se previsualiza localmente y luego se sube al backend
-                al guardar la unidad.
+              <small class="field-help">
+                Se recomienda usar imágenes horizontales de buena calidad para una mejor presentación al cliente.
               </small>
             </div>
 
-            <div v-if="imagePreviewUrl" class="mt-2">
+            <div v-if="imagePreviewUrl" class="mt-1">
               <img
                   :src="imagePreviewUrl"
                   alt="Previsualización de unidad"
@@ -193,9 +226,20 @@
       </div>
     </div>
 
-    <div class="mt-3 flex gap-2">
-      <Button label="Guardar" icon="pi pi-save" @click="onSave" />
-      <Button label="Cancelar" text @click="goBack" />
+    <!-- Acciones -->
+    <div class="form-actions mt-3">
+      <Button
+          label="Guardar unidad"
+          icon="pi pi-save"
+          class="p-button-success"
+          @click="onSave"
+      />
+      <Button
+          label="Cancelar"
+          text
+          class="p-button-text"
+          @click="goBack"
+      />
     </div>
   </div>
 </template>
@@ -293,7 +337,6 @@ function onImageSelected(event) {
 
   form.imageFile = file
 
-  // Liberar URL anterior si era un blob temporal
   if (imagePreviewUrl.value && imagePreviewUrl.value.startsWith('blob:')) {
     URL.revokeObjectURL(imagePreviewUrl.value)
   }
@@ -306,9 +349,8 @@ async function onSave() {
     return
   }
 
-  // Payload JSON para el backend (sin archivo)
   const payload = {
-    id: form.id || 0,
+    id: isEdit.value ? form.id : 0,
     code: form.code,
     name: form.projectName || `Unidad ${form.code}`,
     address: form.notes || 'Sin dirección definida',
@@ -319,6 +361,7 @@ async function onSave() {
     bedrooms: form.bedrooms ?? 0,
     bathrooms: form.bathrooms ?? 0,
     imageUrl: form.imageUrl || '',
+    propertyType: form.propertyType,
     createdAt: form.createdAt || new Date().toISOString()
   }
 
@@ -334,7 +377,6 @@ async function onSave() {
       form.id = data.id
     }
 
-    // Si el usuario seleccionó una imagen, se sube al endpoint /properties/{id}/image
     if (form.imageFile && savedProperty?.id) {
       try {
         const { data: imgResponse } = await uploadPropertyImage(
@@ -356,8 +398,7 @@ async function onSave() {
         toast.add({
           severity: 'warn',
           summary: 'Unidad guardada sin imagen',
-          detail:
-              'La unidad se guardó, pero hubo un problema subiendo la imagen.',
+          detail: 'La unidad se guardó, pero hubo un problema subiendo la imagen.',
           life: 4000
         })
       }
@@ -373,6 +414,7 @@ async function onSave() {
     goBack()
   } catch (error) {
     console.error('Error al guardar propiedad', error)
+    console.log('Detalle backend:', error?.response?.data)
     toast.add({
       severity: 'error',
       summary: 'Error al guardar',
@@ -406,7 +448,7 @@ onMounted(async () => {
     form.bathrooms = data.bathrooms
     form.currency = data.currency
     form.price = Number(data.price)
-    form.propertyType = 'apartment'
+    form.propertyType = data.propertyType || null
     form.parkings = 0
     form.minDownPaymentPercent = 10
     form.createdAt = data.createdAt
@@ -429,11 +471,147 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.property-form-page {
+  animation: fadeIn 0.2s ease-out;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.form-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #064e3b;
+  margin-bottom: 0.25rem;
+}
+
+.form-subtitle {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.form-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #bbf7d0;
+}
+
+.badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #22c55e;
+}
+
+.form-grid {
+  row-gap: 1.25rem;
+}
+
+/* Secciones tipo card */
+.form-section {
+  background: #ffffff;
+  border-radius: 0.9rem;
+  padding: 1rem 1.1rem;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+  border: 1px solid #e5e7eb;
+}
+
+.section-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 0.75rem;
+}
+
+.field-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #4b5563;
+}
+
+.field-label.required::after {
+  content: ' *';
+  color: #dc2626;
+}
+
+.field-help {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+/* Unificar inputs de PrimeVue */
+:deep(.p-inputtext),
+:deep(.p-dropdown),
+:deep(.p-inputnumber-input) {
+  width: 100%;
+  border-radius: 0.6rem;
+}
+
+/* File input */
+.file-input {
+  padding: 0.45rem 0.75rem;
+  border-radius: 0.6rem;
+  border: 1px dashed #d1d5db;
+  background-color: #f9fafb;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.file-input:hover {
+  background-color: #f3f4f6;
+}
+
+/* Imagen */
 .property-image-preview {
   max-width: 100%;
   max-height: 240px;
   border-radius: 0.75rem;
   object-fit: cover;
   box-shadow: 0 2px 10px rgba(15, 23, 42, 0.25);
+}
+
+/* Acciones */
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* Animación */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .form-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 </style>

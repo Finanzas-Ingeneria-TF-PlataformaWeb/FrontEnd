@@ -1,16 +1,39 @@
 <template>
-  <div>
-    <h2 class="mb-3">Configurar simulación</h2>
+  <div class="simulation-config-page">
+    <!-- Header -->
+    <div class="config-header">
+      <div>
+        <h2 class="config-title">Configurar simulación</h2>
+        <p class="config-subtitle">
+          Define el cliente, la unidad inmobiliaria y las condiciones del crédito para generar el plan de pagos.
+        </p>
+      </div>
 
-    <div class="grid">
+      <div class="config-pill">
+        <span class="pill-dot"></span>
+        Paso 1 de 2 · Configuración
+      </div>
+    </div>
+
+    <div class="grid config-grid">
       <!-- Columna izquierda -->
       <div class="col-12 lg:col-6 flex flex-column gap-4">
-        <section>
-          <h3 class="mb-2">Cliente e inmueble</h3>
+        <!-- Cliente e inmueble -->
+        <section class="form-section">
+          <div class="section-header">
+            <div>
+              <h3 class="section-title">Cliente e inmueble</h3>
+              <p class="section-subtitle">
+                Selecciona al solicitante y la unidad que se va a financiar.
+              </p>
+            </div>
+          </div>
 
-          <div class="flex flex-column gap-3">
+          <div class="section-body flex flex-column gap-3">
             <div class="flex flex-column gap-2">
-              <label for="customer">Cliente</label>
+              <label for="customer" class="field-label required">
+                Cliente
+              </label>
               <Dropdown
                   id="customer"
                   v-model="form.customerId"
@@ -19,11 +42,18 @@
                   option-value="id"
                   placeholder="Selecciona un cliente"
                   :loading="loadingCustomers"
+                  class="w-full"
               />
+              <small v-if="selectedCustomer" class="field-help">
+                Documento:
+                <strong>{{ selectedCustomer.documentNumber }}</strong>
+              </small>
             </div>
 
             <div class="flex flex-column gap-2">
-              <label for="property">Unidad inmobiliaria</label>
+              <label for="property" class="field-label required">
+                Unidad inmobiliaria
+              </label>
               <Dropdown
                   id="property"
                   v-model="form.propertyId"
@@ -32,18 +62,35 @@
                   option-value="id"
                   placeholder="Selecciona una unidad"
                   :loading="loadingProperties"
+                  class="w-full"
               />
+              <small v-if="selectedProperty" class="field-help">
+                Precio referencial:
+                <strong>{{ formatCurrency(selectedProperty.price, selectedProperty.currency) }}</strong>
+                · Área:
+                <strong>{{ selectedProperty.areaM2 ?? selectedProperty.area }} m²</strong>
+              </small>
             </div>
           </div>
         </section>
 
-        <section>
-          <h3 class="mb-2">Monto y plazo del crédito</h3>
+        <!-- Monto y plazo -->
+        <section class="form-section">
+          <div class="section-header">
+            <div>
+              <h3 class="section-title">Monto y plazo del crédito</h3>
+              <p class="section-subtitle">
+                Define el monto solicitado, moneda y duración del préstamo.
+              </p>
+            </div>
+          </div>
 
-          <div class="flex flex-column gap-3">
+          <div class="section-body flex flex-column gap-3">
             <div class="flex gap-2">
               <div class="flex flex-column gap-2 w-4">
-                <label for="currency">Moneda</label>
+                <label for="currency" class="field-label required">
+                  Moneda
+                </label>
                 <Dropdown
                     id="currency"
                     v-model="form.currency"
@@ -51,34 +98,47 @@
                     option-label="label"
                     option-value="value"
                     placeholder="Selecciona moneda"
+                    class="w-full"
                 />
               </div>
 
               <div class="flex flex-column gap-2 w-8">
-                <label for="loanAmount">Monto del préstamo</label>
+                <label for="loanAmount" class="field-label required">
+                  Monto del préstamo
+                </label>
                 <InputNumber
                     id="loanAmount"
                     v-model="form.loanAmount"
                     mode="currency"
                     :currency="form.currency || 'PEN'"
                     locale="es-PE"
+                    class="w-full"
+                    placeholder="Ej: 250,000.00"
                 />
+                <small class="field-help">
+                  Corresponde al monto financiado después de cuota inicial y bonos.
+                </small>
               </div>
             </div>
 
             <div class="flex gap-2">
               <div class="flex flex-column gap-2 w-6">
-                <label for="startDate">Fecha de desembolso</label>
+                <label for="startDate" class="field-label">
+                  Fecha de desembolso
+                </label>
                 <Calendar
                     id="startDate"
                     v-model="form.startDate"
                     date-format="dd/mm/yy"
                     show-icon
+                    class="w-full"
                 />
               </div>
 
               <div class="flex flex-column gap-2 w-6">
-                <label for="termYears">Plazo (años)</label>
+                <label for="termYears" class="field-label required">
+                  Plazo (años)
+                </label>
                 <InputNumber
                     id="termYears"
                     v-model="form.termYears"
@@ -86,8 +146,8 @@
                     :max="30"
                     show-buttons
                 />
-                <small class="text-sm">
-                  Aproximadamente {{ form.termYears * 12 }} cuotas mensuales.
+                <small class="field-help">
+                  Aproximadamente {{ termMonths }} cuotas mensuales.
                 </small>
               </div>
             </div>
@@ -97,12 +157,22 @@
 
       <!-- Columna derecha -->
       <div class="col-12 lg:col-6 flex flex-column gap-4">
-        <section>
-          <h3 class="mb-2">Tasa de interés</h3>
+        <!-- Tasa de interés -->
+        <section class="form-section">
+          <div class="section-header">
+            <div>
+              <h3 class="section-title">Tasa de interés</h3>
+              <p class="section-subtitle">
+                Configura el tipo de tasa y su capitalización.
+              </p>
+            </div>
+          </div>
 
-          <div class="flex flex-column gap-3">
+          <div class="section-body flex flex-column gap-3">
             <div class="flex flex-column gap-2">
-              <label for="rateType">Tipo de tasa</label>
+              <label for="rateType" class="field-label required">
+                Tipo de tasa
+              </label>
               <Dropdown
                   id="rateType"
                   v-model="form.rateType"
@@ -110,11 +180,12 @@
                   option-label="label"
                   option-value="value"
                   placeholder="Selecciona tipo de tasa"
+                  class="w-full"
               />
             </div>
 
             <div class="flex flex-column gap-2">
-              <label for="annualRate">
+              <label for="annualRate" class="field-label required">
                 Tasa anual
                 <span v-if="form.rateType === 'effective'">
                   (TEA)
@@ -129,14 +200,21 @@
                   :minFractionDigits="2"
                   :maxFractionDigits="4"
                   suffix="%"
+                  placeholder="Ej: 10.50"
               />
+              <small class="field-help" v-if="form.rateType === 'effective'">
+                Tasa Efectiva Anual (TEA) usada directamente para el cálculo de cuotas.
+              </small>
+              <small class="field-help" v-else>
+                Tasa Nominal Anual (TNA) que se capitaliza según la frecuencia indicada.
+              </small>
             </div>
 
             <div
                 v-if="form.rateType === 'nominal'"
                 class="flex flex-column gap-2"
             >
-              <label for="capitalization">
+              <label for="capitalization" class="field-label">
                 Capitalización
               </label>
               <Dropdown
@@ -146,18 +224,27 @@
                   option-label="label"
                   option-value="value"
                   placeholder="Selecciona frecuencia"
+                  class="w-full"
               />
             </div>
           </div>
         </section>
 
-        <section>
-          <h3 class="mb-2">Periodo de gracia y bono</h3>
+        <!-- Gracia y bono -->
+        <section class="form-section">
+          <div class="section-header">
+            <div>
+              <h3 class="section-title">Periodo de gracia y bono</h3>
+              <p class="section-subtitle">
+                Ajusta periodos de gracia y subsidios aplicables al crédito.
+              </p>
+            </div>
+          </div>
 
-          <div class="flex flex-column gap-3">
+          <div class="section-body flex flex-column gap-3">
             <div class="flex gap-2">
               <div class="flex flex-column gap-2 w-6">
-                <label for="graceType">
+                <label for="graceType" class="field-label">
                   Tipo de gracia
                 </label>
                 <Dropdown
@@ -167,6 +254,7 @@
                     option-label="label"
                     option-value="value"
                     placeholder="Sin periodo de gracia"
+                    class="w-full"
                 />
               </div>
 
@@ -174,7 +262,7 @@
                   class="flex flex-column gap-2 w-6"
                   v-if="form.graceType !== 'none'"
               >
-                <label for="graceMonths">
+                <label for="graceMonths" class="field-label">
                   Meses de gracia
                 </label>
                 <InputNumber
@@ -184,11 +272,14 @@
                     :max="24"
                     show-buttons
                 />
+                <small class="field-help">
+                  Máximo 24 meses de gracia total o parcial.
+                </small>
               </div>
             </div>
 
             <div class="flex flex-column gap-2">
-              <label for="subsidyAmount">
+              <label for="subsidyAmount" class="field-label">
                 Bono / subsidio MiVivienda (opcional)
               </label>
               <InputNumber
@@ -197,10 +288,10 @@
                   mode="currency"
                   :currency="form.currency || 'PEN'"
                   locale="es-PE"
+                  placeholder="Ej: 40,250.00"
               />
-              <small class="text-sm">
-                Si el cliente aplica a bono, ingresa el monto que se
-                resta al precio de venta.
+              <small class="field-help">
+                Si el cliente aplica a bono, ingresa el monto que se resta al precio de venta.
               </small>
             </div>
           </div>
@@ -208,11 +299,13 @@
       </div>
     </div>
 
-    <div class="mt-3 flex gap-2">
+    <!-- Acciones -->
+    <div class="config-actions mt-3">
       <Button
           label="Calcular plan de pagos"
           icon="pi pi-calculator"
           :loading="loading"
+          class="p-button-success"
           @click="onCalculate"
       />
     </div>
@@ -282,6 +375,10 @@ const form = reactive({
   subsidyAmount: null
 })
 
+const termMonths = computed(() =>
+    form.termYears ? form.termYears * 12 : 0
+)
+
 const selectedCustomer = computed(() =>
     customers.value.find((c) => c.id === form.customerId) || null
 )
@@ -298,6 +395,19 @@ function buildLabelForProperty(p) {
   const projectName = p.projectName || p.name || '(Sin nombre)'
   const code = p.code || ''
   return code ? `${projectName} - ${code}` : projectName
+}
+
+function formatCurrency(value, currency) {
+  if (value == null) return '-'
+  const prefix = currency === 'USD' ? '$' : 'S/'
+  return (
+      prefix +
+      ' ' +
+      Number(value).toLocaleString('es-PE', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      })
+  )
 }
 
 async function loadCustomers() {
@@ -437,14 +547,11 @@ async function onCalculate() {
     const response = await calculateSimulation(payload)
     const data = response.data
 
-    // Para ver en consola exactamente qué está devolviendo el backend
     console.log('Respuesta POST /simulations:', data)
 
-    // Aceptamos { simulationId: 1 } o { id: 1 }
     const simulationId = data?.simulationId ?? data?.id
 
     if (!simulationId && simulationId !== 0) {
-      // No hay id => no intentamos hacer router.push
       console.error('La respuesta no trae un identificador de simulación')
       toast.add({
         severity: 'error',
@@ -462,10 +569,9 @@ async function onCalculate() {
       life: 3000
     })
 
-    // Navegamos SOLO si tenemos id válido
     await router.push({
       name: 'simulations-result',
-      params: { id: String(simulationId) } // lo pasamos como string
+      params: { id: String(simulationId) }
     })
   } catch (error) {
     console.error('Error al simular', error.response?.data || error.message)
@@ -481,11 +587,149 @@ async function onCalculate() {
   }
 }
 
-
-
 onMounted(() => {
   loadCustomers()
   loadProperties()
 })
 </script>
 
+<style scoped>
+.simulation-config-page {
+  animation: fadeIn 0.2s ease-out;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.config-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.config-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #064e3b;
+  margin-bottom: 0.25rem;
+}
+
+.config-subtitle {
+  font-size: 0.85rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.config-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #bbf7d0;
+}
+
+.pill-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: #22c55e;
+}
+
+.config-grid {
+  row-gap: 1.25rem;
+}
+
+/* Secciones tipo card */
+.form-section {
+  background: #ffffff;
+  border-radius: 0.9rem;
+  padding: 1rem 1.1rem;
+  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+  border: 1px solid #e5e7eb;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.6rem;
+}
+
+.section-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 0.1rem;
+}
+
+.section-subtitle {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+.section-body {
+  margin-top: 0.4rem;
+}
+
+.field-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #4b5563;
+}
+
+.field-label.required::after {
+  content: ' *';
+  color: #dc2626;
+}
+
+.field-help {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+/* PrimeVue inputs */
+:deep(.p-inputtext),
+:deep(.p-dropdown),
+:deep(.p-inputnumber-input),
+:deep(.p-calendar) {
+  width: 100%;
+  border-radius: 0.6rem;
+}
+
+/* Acciones */
+.config-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+/* Animación */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .config-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .config-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+</style>
