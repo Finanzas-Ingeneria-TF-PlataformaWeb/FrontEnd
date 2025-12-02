@@ -138,6 +138,7 @@ import { useRouter } from 'vue-router'
 import { useToast } from 'primevue/usetoast'
 
 import { getProperties, deleteProperty } from '@/api/propertiesApi'
+import { buildImageUrl } from '@/api/http'
 
 const router = useRouter()
 const toast = useToast()
@@ -161,35 +162,6 @@ const propertyTypeMap = {
   loft: 'Loft',
   office: 'Oficina',
   oficina: 'Oficina'
-}
-
-// baseURL del backend (la misma que usas en Axios)
-const apiBaseUrl = import.meta.env.VITE_API_URL || ''
-
-// Origen del backend (ej: http://localhost:5137)
-let backendOrigin = window.location.origin
-
-if (apiBaseUrl.startsWith('http://') || apiBaseUrl.startsWith('https://')) {
-  // Ej: http://localhost:5137/api -> http://localhost:5137
-  backendOrigin = apiBaseUrl.replace(/\/api\/?$/, '')
-}
-
-// Normaliza la URL de la imagen que viene del backend
-function buildImageUrl(raw) {
-  if (!raw) return null
-
-  // Ya es absoluta
-  if (raw.startsWith('http://') || raw.startsWith('https://')) {
-    return raw
-  }
-
-  // 'uploads/archivo.jpg'
-  if (!raw.startsWith('/')) {
-    return `${backendOrigin}/${raw}`
-  }
-
-  // '/uploads/archivo.jpg'
-  return `${backendOrigin}${raw}`
 }
 
 // Mapeo backend -> columnas usadas en la tabla
